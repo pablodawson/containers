@@ -27,6 +27,39 @@ RUN apt-get update --yes && \
     rm -rf /var/lib/apt/lists/* && \
     echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
 
+# COLMAP
+RUN apt-get update --yes && \
+    apt-get install \
+    git \
+    cmake \
+    ninja-build \
+    build-essential \
+    libboost-program-options-dev \
+    libboost-filesystem-dev \
+    libboost-graph-dev \
+    libboost-system-dev \
+    libeigen3-dev \
+    libflann-dev \
+    libfreeimage-dev \
+    libmetis-dev \
+    libgoogle-glog-dev \
+    libgtest-dev \
+    libsqlite3-dev \
+    libglew-dev \
+    qtbase5-dev \
+    libqt5opengl5-dev \
+    libcgal-dev \
+    libceres-dev
+
+RUN git clone https://github.com/pablodawson/colmap.git
+RUN cd colmap
+RUN git checkout dev
+RUN mkdir build
+RUN cd build
+RUN cmake .. -GNinja
+RUN ninja
+RUN sudo ninja install
+
 
 # Set up Python and pip
 RUN ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python && \
@@ -45,6 +78,8 @@ RUN pip install notebook==6.5.5
 RUN jupyter contrib nbextension install --user && \
     jupyter nbextension enable --py widgetsnbextension
 
+# Gaussian Splatting things
+RUN pip install plyfile
 
 # NGINX Proxy
 COPY --from=proxy nginx.conf /etc/nginx/nginx.conf
